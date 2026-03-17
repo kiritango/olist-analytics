@@ -45,7 +45,7 @@ CREATE_RAW_ORDER_CUSTOMERS = """
 CREATE TABLE IF NOT EXISTS raw.customers (
     customer_id          String,
     customer_unique_id       String,
-    customer_zip_code_prefix      UInt16,
+    customer_zip_code_prefix      String,
     customer_city LowCardinality(String),
     customer_state LowCardinality(String)
 ) ENGINE = MergeTree()
@@ -54,7 +54,7 @@ ORDER BY (customer_id)
 
 CREATE_RAW_ORDER_GEOLOCATIONS = """
 CREATE TABLE IF NOT EXISTS raw.geolocations (
-    geolocation_zip_code_prefix          UInt16,
+    geolocation_zip_code_prefix          String,
     geolocation_lat       Float64,
     geolocation_lng      Float64,
     geolocation_city LowCardinality(String),
@@ -93,7 +93,7 @@ ORDER BY (product_id)
 CREATE_RAW_ORDER_SELLERS = """
 CREATE TABLE IF NOT EXISTS raw.sellers (
     seller_id          String,
-    seller_zip_code_prefix      UInt16,
+    seller_zip_code_prefix      String,
     seller_city		LowCardinality(String),
     seller_state 	LowCardinality(String)
 ) ENGINE = MergeTree()
