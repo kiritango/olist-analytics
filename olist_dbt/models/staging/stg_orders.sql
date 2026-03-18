@@ -1,3 +1,9 @@
+{{ config(
+    engine='MergeTree()',
+    order_by='(order_id, ordered_at)',
+    partition_by='toYYYYMM(ordered_at)'
+) }}
+
 SELECT
     order_id,
     customer_id,
@@ -13,9 +19,3 @@ SELECT
 FROM {{ source('raw', 'orders') }}
 WHERE order_purchase_timestamp IS NOT NULL
   AND order_status NOT IN ('unavailable', 'canceled')
-
-{{ config(
-    engine='MergeTree()',
-    order_by='(order_id, ordered_at)',
-    partition_by='toYYYYMM(ordered_at)'
-) }}

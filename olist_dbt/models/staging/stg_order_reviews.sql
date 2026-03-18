@@ -1,3 +1,8 @@
+{{ config(
+    engine='MergeTree()',
+    order_by='(order_id, created_at)'
+) }}
+
 SELECT
     review_id,
     order_id,
@@ -9,8 +14,3 @@ SELECT
 FROM {{ source('raw', 'order_reviews') }}
 WHERE review_id IS NOT NULL
   AND order_id IS NOT NULL
-
-{{ config(
-    engine='MergeTree()',
-    order_by='(order_id, created_at)'
-) }}

@@ -1,3 +1,8 @@
+{{ config(
+    engine='MergeTree()',
+    order_by='(order_id, product_id)'
+) }}
+
 SELECT
     order_id,
     order_item_id,
@@ -9,8 +14,3 @@ SELECT
     price + freight_value AS total_price
 FROM {{ source('raw', 'order_items') }}
 WHERE price > 0
-
-{{ config(
-    engine='MergeTree()',
-    order_by='(order_id, product_id)'
-) }}
