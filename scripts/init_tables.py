@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS raw.order_reviews (
     review_id          String,
     order_id          String,
     review_score       UInt8,
-    review_comment_title	String,
-    review_comment_message	String,
+    review_comment_title	Nullable(String),
+    review_comment_message	Nullable(String),
     review_creation_date	DateTime,
     review_answer_timestamp	DateTime
 ) ENGINE = MergeTree()
@@ -78,14 +78,14 @@ ORDER BY (order_id, order_item_id, product_id)
 CREATE_RAW_ORDER_PRODUCTS = """
 CREATE TABLE IF NOT EXISTS raw.products (
     product_id          String,
-    product_category_name      LowCardinality(String),
-    product_name_lenght	UInt8,
-    product_description_lenght UInt16,
-    product_photos_qty	UInt8,
-    product_weight_g 	UInt16,
-    product_length_cm	UInt8,
-    product_height_cm	UInt8,
-    product_width_cm	UInt8
+    product_category_name      LowCardinality(Nullable(String)),
+    product_name_lenght	Nullable(UInt8),
+    product_description_lenght Nullable(UInt16),
+    product_photos_qty	Nullable(UInt8),
+    product_weight_g 	Nullable(UInt16),
+    product_length_cm	Nullable(UInt8),
+    product_height_cm	Nullable(UInt8),
+    product_width_cm	Nullable(UInt8)
 ) ENGINE = MergeTree()
 ORDER BY (product_id)
 """
