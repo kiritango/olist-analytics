@@ -35,27 +35,38 @@ marts (бизнес-метрики)
 ## Быстрый старт
 
 1. Клонировать репозиторий
-git clone https://github.com/kiritango/olist-analytics.git
-cd olist-analytics
+```bash
+   git clone https://github.com/kiritango/olist-analytics.git
+   cd olist-analytics
+```
 
 2. Создать .env из шаблона
-cp .env.example .env
-# заполнить значения
+```bash
+   cp .env.example .env
+```
 
 3. Поднять окружение
-docker-compose up -d
+```bash
+   docker-compose up -d
+```
 
 4. Установить зависимости
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   pip install -r requirements.txt
+```
 
 5. Загрузить данные
-python scripts/init_db.py
-python scripts/init_tables.py
-python scripts/load_raw.py
+```bash
+   python scripts/init_db.py
+   python scripts/init_tables.py
+   python scripts/load_raw.py
+```
 
 6. Запустить dbt
-cd olist_dbt
-dbt run
-dbt test
+```bash
+   cd olist_dbt
+   dbt run
+   dbt test
+```
