@@ -101,6 +101,42 @@ CREATE TABLE IF NOT EXISTS raw.sellers (
 ORDER BY (seller_id)
 """
 
+CREATE_ORDERS_STREAM = """
+CREATE TABLE IF NOT EXISTS raw.orders_stream (
+    order_id                        String,
+    customer_id                     String,
+    order_status                    LowCardinality(String),
+    order_purchase_timestamp        String,
+    order_approved_at               Nullable(String),
+    order_delivered_carrier_date    Nullable(String),
+    order_delivered_customer_date   Nullable(String),
+    order_estimated_delivery_date   Nullable(String)
+) ENGINE = ReplacingMergeTree()
+ORDER BY order_id
+"""
+
+CREATE_ITEMS_STREAM = """
+CREATE TABLE IF NOT EXISTS raw.order_items_stream (
+    order_id            String,
+    order_item_id       UInt32,
+    product_id          String,
+    seller_id           String,
+    shipping_limit_date Nullable(String),
+    price               Float64,
+    freight_value       Float64
+) ENGINE = ReplacingMergeTree()
+ORDER BY (order_id, order_item_id)
+"""
+
+CREATE_PAYMENTS_STREAM = """
+CREATE TABLE IF NOT EXISTS raw.payments_stream (
+    order_id        String,
+    payment_type    LowCardinality(String),
+    payment_value   Float64
+) ENGINE = ReplacingMergeTree()
+ORDER BY order_id
+"""
+
 def init_tables():
     client = get_client()
     tables = [
@@ -111,7 +147,10 @@ def init_tables():
         ('raw.geolocations', CREATE_RAW_ORDER_GEOLOCATIONS),
         ('raw.order_items', CREATE_RAW_ORDER_ORDER_ITEMS),
         ('raw.products', CREATE_RAW_ORDER_PRODUCTS),
-        ('raw.sellers', CREATE_RAW_ORDER_SELLERS)
+        ('raw.sellers', CREATE_RAW_ORDER_SELLERS),
+        ('raw.orders_stream', CREATE_ORDERS_STREAM),
+        ('raw.order_items_stream', CREATE_ITEMS_STREAM),
+        ('raw.payments_stream', CREATE_PAYMENTS_STREAM),
     ]
     for name, sql in tables:
         client.execute(sql)
