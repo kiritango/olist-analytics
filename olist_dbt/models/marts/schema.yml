@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: mart_revenue
+    description: "Ежемесячная выручка. Основная финансовая витрина — динамика заказов, выручки и среднего чека."
+    columns:
+      - name: month
+        description: "Первый день месяца"
+        tests:
+          - unique
+          - not_null
+      - name: orders
+        description: "Количество уникальных заказов за месяц"
+      - name: revenue
+        description: "Суммарная выручка за месяц"
+        tests:
+          - not_null
+      - name: avg_check
+        description: "Средний чек — выручка делённая на количество заказов"
+      - name: arpu
+        description: "Средняя выручка на одного уникального покупателя"
+
+  - name: mart_dau
+    description: "Ежедневная активность покупателей (DAU). Используется для расчёта WAU и MAU."
+    columns:
+      - name: day
+        description: "Дата"
+        tests:
+          - unique
+          - not_null
+      - name: dau
+        description: "Количество уникальных покупателей за день"
+      - name: orders
+        description: "Количество заказов за день"
+
+  - name: mart_cohorts
+    description: "Когортный анализ. Показывает как часто покупатели возвращаются после первого заказа."
+    columns:
+      - name: cohort_month
+        description: "Месяц первого заказа покупателя"
+        tests:
+          - not_null
+      - name: order_month
+        description: "Месяц последующего заказа"
+        tests:
+          - not_null
+      - name: users
+        description: "Количество покупателей из когорты совершивших заказ в данном месяце"
+      - name: months_since_first
+        description: "Количество месяцев прошедших с первого заказа"
+        tests:
+          - not_null
+
+  - name: mart_funnel
+    description: "Воронка заказов. Показывает на каком этапе теряются заказы."
+    columns:
+      - name: stage_order
+        description: "Порядковый номер этапа для сортировки"
+      - name: stage
+        description: "Название этапа: created, approved, shipped, delivered"
+        tests:
+          - unique
+          - not_null
+      - name: users
+        description: "Количество заказов дошедших до этого этапа"
+      - name: conversion_pct
+        description: "Процент от верхнего этапа воронки"
+
+  - name: mart_top_products
+    description: "Топ категорий товаров по выручке."
+    columns:
+      - name: rank
+        description: "Место категории по выручке"
+      - name: category
+        description: "Название категории"
+        tests:
+          - unique
+          - not_null
+      - name: revenue
+        description: "Суммарная выручка категории"
+      - name: revenue_share_pct
+        description: "Доля категории в общей выручке в процентах"

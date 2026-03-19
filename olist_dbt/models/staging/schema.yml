@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Очищенные заказы. Исключены отменённые и недоступные. Добавлены читаемые названия полей и delivery_days."
+    columns:
+      - name: order_id
+        description: "Уникальный идентификатор заказа"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Идентификатор покупателя"
+        tests:
+          - not_null
+      - name: order_status
+        description: "Статус заказа"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['delivered', 'shipped', 'processing', 'invoiced', 'approved', 'created']
+      - name: ordered_at
+        description: "Дата и время оформления заказа"
+        tests:
+          - not_null
+      - name: delivery_days
+        description: "Количество дней от оформления до доставки"
+        tests:
+          - not_null:
+              config:
+                where: "delivered_at IS NOT NULL"
+
+  - name: stg_payments
+    description: "Платежи по заказам. Исключены нулевые платежи и неопределённые типы оплаты."
+    columns:
+      - name: order_id
+        description: "Уникальный идентификатор заказа"
+        tests:
+          - not_null
+      - name: payment_type
+        description: "Тип оплаты: credit_card, boleto, voucher, debit_card"
+      - name: payment_value
+        description: "Сумма платежа"
+        tests:
+          - not_null
+
+  - name: stg_order_items
+    description: "Позиции заказов с ценами. Исключены позиции с нулевой ценой."
+    columns:
+      - name: order_id
+        description: "Уникальный идентификатор заказа"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Уникальный идентификатор товара"
+        tests:
+          - not_null
+      - name: price
+        description: "Цена позиции без доставки"
+        tests:
+          - not_null
+      - name: freight_value
+        description: "Стоимость доставки"
+        tests:
+          - not_null
+      - name: total_price
+        description: "Цена позиции включая стоимость доставки"
+        tests:
+          - not_null
+
+  - name: stg_customers
+    description: "Покупатели. Один customer_id = одна запись."
+    columns:
+      - name: customer_id
+        description: "Уникальный идентификатор покупателя в рамках заказа"
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: "Реальный уникальный ID покупателя — один человек может иметь несколько customer_id"
+
+  - name: stg_products
+    description: "Товары с категориями. NULL категории заменены на unknown."
+    columns:
+      - name: product_id
+        description: "Уникальный идентификатор товара"
+        tests:
+          - unique
+          - not_null
+      - name: category
+        description: "Категория товара. unknown если категория не указана."
+        tests:
+          - not_null
