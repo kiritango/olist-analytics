@@ -67,6 +67,33 @@ olist-analytics/
 | mart_funnel | Воронка заказов по этапам |
 | mart_top_products | Топ категорий товаров по выручке |
 
+## Примеры аналитики
+
+### Воронка заказов
+```sql
+SELECT stage, users, conversion_pct
+FROM marts.mart_funnel
+ORDER BY stage_order;
+```
+![funnel](docs/funnel.png)
+
+### Retention матрица
+```sql
+SELECT cohort_month, months_since_first, users
+FROM marts.mart_cohorts
+ORDER BY cohort_month, months_since_first
+LIMIT 20;
+```
+![cohorts](docs/cohorts.png)
+
+### Топ категорий по выручке
+```sql
+SELECT category, revenue, revenue_share_pct
+FROM marts.mart_top_products
+LIMIT 10;
+```
+![top_products](docs/top_products.png)
+
 ## Запуск проекта
 
 **1. Клонировать репозиторий**
