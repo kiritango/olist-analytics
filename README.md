@@ -6,22 +6,32 @@
 - **ClickHouse** — аналитическая база данных
 - **dbt** — трансформации и тестирование данных
 - **Apache Kafka** — потоковая передача данных
-- **PySpark** — обработка стрима
+- **PySpark Structured Streaming** — обработка стрима
+- **Apache Airflow** — оркестрация и автообновление витрин
 - **Docker** — контейнеризация окружения
 - **Python** — загрузка исторических данных и генерация стрима
 
 ## Архитектура
 
 ### Batch (исторические данные)
+```
 CSV (Olist dataset) → Python → ClickHouse raw → dbt → staging → marts
+```
 
 ### Stream (живые данные)
+```
 Producer (Docker) → Kafka → Spark Streaming → ClickHouse raw_stream → dbt → marts
+```
+
+### Оркестрация
+```
+Airflow (каждые 30 мин) → dbt run → dbt test
+```
 
 ## Структура проекта
 ```
 olist-analytics/
-├── docker-compose.yml        # ClickHouse + Kafka + Spark + Producer
+├── docker-compose.yml        # ClickHouse + Kafka + Spark + Producer + Airflow
 ├── .env.example              # Шаблон переменных окружения
 ├── requirements.txt          # Python зависимости
 ├── scripts/
@@ -34,6 +44,9 @@ olist-analytics/
 │   └── producer.py           # Генератор событий → Kafka
 ├── spark/
 │   └── consumer.py           # Spark Streaming: Kafka → ClickHouse
+├── airflow/
+│   └── dags/
+│       └── dbt_refresh.py    # DAG: dbt run + dbt test каждые 30 минут
 ├── olist_dbt/
 │   └── models/
 │       ├── staging/          # Очистка и типизация данных
@@ -42,7 +55,6 @@ olist-analytics/
     └── graph.png             # dbt lineage graph
 ```
 
-[Lineage Graph]
 ![dbt lineage graph](docs/graph.png)
 
 ## Витрины
@@ -75,6 +87,7 @@ docker-compose up -d
 ```
 
 Producer запустится автоматически и начнёт генерировать заказы в Kafka.
+Airflow будет доступен на `http://localhost:8090` (admin / admin).
 
 **4. Установить зависимости**
 ```bash
@@ -104,7 +117,16 @@ SELECT count() FROM raw.order_items_stream;
 SELECT count() FROM raw.payments_stream;
 ```
 
-**7. Запустить dbt**
+**7. Оркестрация через Airflow**
+
+DAG `dbt_refresh` запускается автоматически каждые 30 минут:
+```
+dbt run → dbt test
+```
+
+Запустить вручную: `http://localhost:8090` → DAGs → dbt_refresh → ▶️ Trigger DAG.
+
+**8. Запустить dbt вручную**
 ```bash
 cd olist_dbt
 dbt run

@@ -1,5 +1,6 @@
 data/
-
+olist_dbt/profiles.yml
+.user.yml
 .env
 
 __pycache__/

@@ -1,0 +1,11 @@
+olist_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      schema: staging
+      host: olist_clickhouse
+      port: 8123
+      user: your_user
+      password: your_password
+      secure: false

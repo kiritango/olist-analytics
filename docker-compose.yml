@@ -71,7 +71,50 @@ services:
     depends_on:
       - kafka
       - clickhouse
+  
+  airflow-webserver:
+    image: apache/airflow:2.8.0-python3.10
+    container_name: olist_airflow_webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./olist_dbt:/opt/dbt
+      - airflow_data:/opt/airflow
+    command: >
+      bash -c "pip install dbt-clickhouse &&
+              airflow db init &&
+              airflow users create --username admin --password admin
+                --firstname Admin --lastname Admin
+                --role Admin --email admin@example.com || true &&
+              airflow webserver"
+    depends_on:
+      - clickhouse
+
+  airflow-scheduler:
+    image: apache/airflow:2.8.0-python3.10
+    container_name: olist_airflow_scheduler
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./olist_dbt:/opt/dbt
+      - airflow_data:/opt/airflow
+    command: >
+      bash -c "pip install dbt-clickhouse &&
+           airflow scheduler"
+    depends_on:
+      - airflow-webserver
 
 volumes:
   clickhouse_data:
   kafka_data:
+  airflow_data:
