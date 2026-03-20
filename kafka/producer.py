@@ -2,7 +2,7 @@ import json
 import time
 import uuid
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from kafka import KafkaProducer
 from clickhouse_driver import Client
 from dotenv import load_dotenv
@@ -36,19 +36,35 @@ print(f'Готово: {len(customer_ids)} покупателей, {len(product_i
 
 def generate_order():
     order_id = str(uuid.uuid4())
-    now = datetime.now().isoformat()
+    now = datetime.now()
+    status = random.choice(statuses)
 
-    # Заказ
+    # Даты зависят от статуса
+    order_approved_at = None
+    order_delivered_carrier_date = None
+    order_delivered_customer_date = None
+    order_estimated_delivery_date = None
+
+    if status in ['approved', 'shipped', 'delivered']:
+        order_approved_at = (now + timedelta(hours=random.randint(1, 24))).isoformat()
+
+    if status in ['shipped', 'delivered']:
+        order_delivered_carrier_date = (now + timedelta(days=random.randint(1, 3))).isoformat()
+        order_estimated_delivery_date = (now + timedelta(days=random.randint(7, 15))).isoformat()
+
+    if status == 'delivered':
+        order_delivered_customer_date = (now + timedelta(days=random.randint(3, 10))).isoformat()
+
     order = {
         'event_type': 'order',
         'order_id': order_id,
         'customer_id': random.choice(customer_ids),
-        'order_status': random.choice(statuses),
-        'order_purchase_timestamp': now,
-        'order_approved_at': now,
-        'order_delivered_carrier_date': None,
-        'order_delivered_customer_date': None,
-        'order_estimated_delivery_date': None
+        'order_status': status,
+        'order_purchase_timestamp': now.isoformat(),
+        'order_approved_at': order_approved_at,
+        'order_delivered_carrier_date': order_delivered_carrier_date,
+        'order_delivered_customer_date': order_delivered_customer_date,
+        'order_estimated_delivery_date': order_estimated_delivery_date
     }
 
     # Позиции заказа (1-4 товара)
