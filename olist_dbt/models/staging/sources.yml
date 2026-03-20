@@ -11,3 +11,6 @@ sources:
       - name: customers
       - name: products
       - name: order_reviews
+      - name: orders_stream
+      - name: order_items_stream
+      - name: payments_stream
